@@ -81,32 +81,40 @@ public String update(
     @RequestParam("Categoria") long idCategoria,
     @RequestParam("plataformas") long [] idsPlataformas) {
         Optional<Jogo> jogo = jogoRepo.findById(id);
-        if (plataforma.isPresent()){
-            plataforma.get().setNome(nome);
-
-            plataformaRepo.save(plataforma.get());
+        if (jogo.isPresent()){
+            jogo.get().setTitulo(titulo);
+            jogo.get().setCategoria(categoriaRepo.findById(idCategoria).get());
+            Set<Plataforma> updatePlataforma = new HashSet<>();
+            for(long p : idsPlataformas) {
+                Optional<Plataforma> plataforma = plataformaRepo.findById(p);
+                if (plataforma.isPresent()){
+                    updatePlataforma.add(plataforma.get());
+                }
+            }
+            jogo.get().setPlataformas(updatePlataforma);
+            jogoRepo.save(jogo.get());
         }
-        return "redirect:/plataforma/list";
+        return "redirect:/jogo/list";
     }
 @RequestMapping("/delete")
 public String delete(
     @RequestParam("id") long id, Model ui)
 {
-Optional<Plataforma> plataforma = plataformaRepo.findById(id);
+Optional<Jogo> jogo = jogoRepo.findById(id);
 
 
-if(plataforma.isPresent()){
-    ui.addAttribute("plataforma", plataforma.get());
-    return "plataforma/delete";
+if(jogo.isPresent()){
+    ui.addAttribute("jogo", jogo.get());
+    return "jogo/delete";
 }
-return "redirect:/plataforma/list";
+return "redirect:/jogo/list";
 }
 
 @RequestMapping(value = "/delete", method = RequestMethod.POST)
 public String delete(@RequestParam("id")long id){
-    plataformaRepo.deleteById(id);
+    jogoRepo.deleteById(id);
 
-    return "redirect:/plataforma/list";
+    return "redirect:/jogo/list";
 }
 }
 
